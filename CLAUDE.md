@@ -35,11 +35,13 @@ index.html ──POST /rest/v1/rpc/guestbook_*──▶ Supabase (todo-app 프�
 
 ## 배포
 
-Vercel 프로젝트 **`juhee-guestbook`** (팀 `team_nM4xor6LKVFp2G6SNOTA2Lrs`) → https://juhee-guestbook.vercel.app
+GitHub `anittaesmuyrica1000-hub/guestbook` → 사용자 본인 Vercel 계정(Juhee's projects, 팀 슬러그 `juhee-team`)의 `guestbook` 프로젝트 → https://guestbook-juhee-team.vercel.app
 
-- git 연동이 아니라 Vercel MCP `deploy_to_vercel`로 `index.html` 내용을 직접 업로드하는 방식이다. `index.html`을 수정해도 자동 배포되지 않으므로, 수정 후 같은 프로젝트명으로 다시 `deploy_to_vercel`을 호출해야 한다.
-- 이 팀은 새 프로젝트에 Vercel Authentication(배포 보호)이 기본으로 켜진다. 새로 배포한 프로젝트가 302로 SSO 리다이렉트되면 `update_project_deployment_protection`으로 `ssoProtection: {enabled: false}` 처리할 것.
-- 구 프로젝트 `guestbook`(긴 주소)은 폐기 대상이며 재사용하지 않는다.
+- **git 연동 자동 배포**: `main`에 push하면 자동 재배포된다. 배포는 push로 끝난다.
+- 푸시 인증: remote에 토큰을 저장하지 않는다. 사용자에게 GitHub 토큰을 받아 푸시 URL에 일회성으로만 사용하고, `.git/config`에 토큰이 남지 않았는지 확인할 것.
+- git 커밋 identity는 이 저장소에 local로 설정되어 있다 (GitHub noreply 이메일). global 설정을 바꾸지 말 것.
+- Vercel MCP(`deploy_to_vercel`)는 **다른 계정**(jayjaewoongchoi-2571 팀)에 연결되어 있으므로 이 프로젝트 배포에 쓰지 않는다. 그 계정에 있는 구 프로젝트 `guestbook`·`juhee-guestbook`(juhee-guestbook.vercel.app 포함)은 폐기 대상이다.
+- Vercel은 새 프로젝트에 Vercel Authentication(배포 보호)을 기본으로 켠다. 새 프로젝트가 302로 SSO 리다이렉트되면 프로젝트 Settings → Deployment Protection에서 꺼야 한다.
 
 ## 문서
 

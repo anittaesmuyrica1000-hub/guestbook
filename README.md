@@ -5,7 +5,7 @@
 
 > 제작일: 2026-08-08 · 제작 도구: Claude Code
 >
-> **🌐 공개 주소: https://juhee-guestbook.vercel.app**
+> **🌐 공개 주소: https://guestbook-juhee-team.vercel.app**
 
 ---
 
@@ -115,14 +115,15 @@ python3 -m http.server 8931 -d .
 
 ## 배포 현황
 
-Vercel `juhee-guestbook` 프로젝트로 배포되어 있습니다 (2026-08-08).
+본인 Vercel 계정(Juhee's projects)의 `guestbook` 프로젝트로 배포되어 있습니다 (2026-08-08).
 
-- **공개 주소**: https://juhee-guestbook.vercel.app
-- **관리 대시보드**: https://vercel.com/jayjaewoongchoi-2571s-projects/juhee-guestbook
+- **공개 주소**: https://guestbook-juhee-team.vercel.app
+- **관리 대시보드**: https://vercel.com/juhee-team/guestbook
+- **GitHub 연동**: [anittaesmuyrica1000-hub/guestbook](https://github.com/anittaesmuyrica1000-hub/guestbook) 저장소의 `main` 브랜치에 push하면 **자동으로 재배포**됩니다.
 - 배포 보호(Vercel Authentication)는 꺼둔 상태라 누구나 접속할 수 있습니다.
-- 처음 배포했던 `guestbook` 프로젝트(긴 주소)는 사용하지 않으므로 대시보드에서 삭제해도 됩니다.
+- 이전에 다른 계정(jayjaewoongchoi-2571)으로 배포했던 `guestbook`·`juhee-guestbook` 프로젝트는 폐기 대상입니다. juhee-guestbook.vercel.app 주소도 그쪽 소유라 더 이상 관리하지 않습니다.
 
-`index.html`을 수정한 뒤 다시 배포하려면 Vercel 대시보드에 파일을 올리거나, Claude Code에게 "다시 배포해줘"라고 요청하면 됩니다. 별도 서버나 환경 변수 설정은 없습니다. (Supabase 주소와 공개 키가 `index.html` 안에 들어 있습니다.)
+별도 서버나 환경 변수 설정은 없습니다. (Supabase 주소와 공개 키가 `index.html` 안에 들어 있습니다.)
 
 ---
 
