@@ -11,7 +11,7 @@
 
 | 항목 | 값 |
 |---|---|
-| Base URL | `https://jcspkkaszsqlwnokqpmz.supabase.co/rest/v1/rpc` |
+| Base URL | `https://sxrorbvuhdbavfbaibuj.supabase.co/rest/v1/rpc` |
 | HTTP 메서드 | 모든 요청 `POST` |
 | 인증 | 공개 키(anon key) — 로그인 불필요 |
 | 요청 본문 | JSON |
@@ -21,8 +21,8 @@
 
 ```
 Content-Type: application/json
-apikey: sb_publishable_4mUadSjAbg1N41XjfH1ZjA_Rdcru2gq
-Authorization: Bearer sb_publishable_4mUadSjAbg1N41XjfH1ZjA_Rdcru2gq
+apikey: sb_publishable_cpSXjomVMtQ6vFXHJl1wIQ_4NXIpX64
+Authorization: Bearer sb_publishable_cpSXjomVMtQ6vFXHJl1wIQ_4NXIpX64
 ```
 
 ### 공통 응답 형식
@@ -90,10 +90,10 @@ POST /rest/v1/rpc/guestbook_list
 **curl 예시**
 
 ```bash
-curl -X POST "https://jcspkkaszsqlwnokqpmz.supabase.co/rest/v1/rpc/guestbook_list" \
+curl -X POST "https://sxrorbvuhdbavfbaibuj.supabase.co/rest/v1/rpc/guestbook_list" \
   -H "Content-Type: application/json" \
-  -H "apikey: sb_publishable_4mUadSjAbg1N41XjfH1ZjA_Rdcru2gq" \
-  -H "Authorization: Bearer sb_publishable_4mUadSjAbg1N41XjfH1ZjA_Rdcru2gq" \
+  -H "apikey: sb_publishable_cpSXjomVMtQ6vFXHJl1wIQ_4NXIpX64" \
+  -H "Authorization: Bearer sb_publishable_cpSXjomVMtQ6vFXHJl1wIQ_4NXIpX64" \
   -d '{}'
 ```
 
@@ -307,8 +307,8 @@ POST /rest/v1/rpc/guestbook_delete_reply
 `index.html`에서 실제로 사용하는 방식과 동일합니다.
 
 ```js
-const SUPABASE_URL = "https://jcspkkaszsqlwnokqpmz.supabase.co";
-const SUPABASE_KEY = "sb_publishable_4mUadSjAbg1N41XjfH1ZjA_Rdcru2gq";
+const SUPABASE_URL = "https://sxrorbvuhdbavfbaibuj.supabase.co";
+const SUPABASE_KEY = "sb_publishable_cpSXjomVMtQ6vFXHJl1wIQ_4NXIpX64";
 
 async function rpc(fn, params = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
@@ -342,9 +342,9 @@ if (!result.ok) alert(result.error);
 - **공개 키는 노출되어도 안전하게 설계**되어 있습니다. 테이블 직접 읽기/쓰기는 RLS로 전면 차단되어 있고, 위 7개 함수를 통해서만 접근할 수 있습니다.
 - 비밀번호는 서버(DB 함수) 안에서 bcrypt로 해시되어 저장·검증됩니다. 평문 비밀번호는 저장되지 않으며, API 응답에 해시도 포함되지 않습니다.
 - 비밀번호 검증·글자 수 검증이 모두 DB 함수 내부에서 실행되므로, 클라이언트를 조작해도 우회할 수 없습니다.
-- 비밀번호를 잊으면 API로는 수정·삭제할 수 없습니다. [Supabase 대시보드](https://supabase.com/dashboard/project/jcspkkaszsqlwnokqpmz) → Table Editor에서 직접 관리해야 합니다.
+- 비밀번호를 잊으면 API로는 수정·삭제할 수 없습니다. [Supabase 대시보드](https://supabase.com/dashboard/project/sxrorbvuhdbavfbaibuj) → Table Editor에서 직접 관리해야 합니다.
 
 ## 관련 문서
 
 - 프로젝트 개요·화면·배포: [`../README.md`](../README.md)
-- DB 스키마: Supabase `todo-app` 프로젝트의 `guestbook_entries`, `guestbook_replies` 테이블 (마이그레이션명: `create_guestbook`)
+- DB 스키마: Supabase `guestbook` 전용 프로젝트의 `guestbook_entries`, `guestbook_replies` 테이블 (마이그레이션명: `create_guestbook`)

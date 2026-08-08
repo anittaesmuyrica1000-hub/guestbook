@@ -34,13 +34,13 @@
 ```
 ┌──────────────────┐         RPC 호출          ┌─────────────────────────┐
 │   index.html     │  ──────────────────────▶  │  Supabase (PostgreSQL)  │
-│  (정적 페이지)     │   /rest/v1/rpc/...       │  프로젝트: todo-app      │
+│  (정적 페이지)     │   /rest/v1/rpc/...       │  프로젝트: guestbook     │
 │  HTML+CSS+JS     │  ◀──────────────────────  │  guestbook_ 테이블 2개   │
 └──────────────────┘         JSON 응답          └─────────────────────────┘
 ```
 
 - **프런트엔드**: `index.html` 파일 하나. 프레임워크·빌드 도구 없이 순수 HTML/CSS/JS로 작성. Pretendard 폰트만 CDN으로 불러옵니다.
-- **백엔드**: Supabase `todo-app` 프로젝트(`jcspkkaszsqlwnokqpmz`, 서울 리전)를 재사용. 무료 플랜의 프로젝트 2개 제한 때문에 새 프로젝트 대신 `guestbook_` 접두사 테이블을 추가했습니다. 기존 todo 테이블과는 완전히 분리되어 있습니다.
+- **백엔드**: Supabase `guestbook` 전용 프로젝트(`sxrorbvuhdbavfbaibuj`, 서울 리전). 처음엔 기존 `todo-app` 프로젝트를 공유했지만 2026-08-08에 전용 프로젝트로 분리했습니다 (무료 플랜 2개 제한 때문에 `todo-app`은 일시중지 상태). 분리 직전 데이터는 `backup-2026-08-08.json`에 백업되어 있습니다.
 
 ### 데이터베이스 테이블
 
@@ -129,7 +129,7 @@ python3 -m http.server 8931 -d .
 
 ## 데이터 관리
 
-- 데이터 확인·수동 삭제: [Supabase 대시보드](https://supabase.com/dashboard/project/jcspkkaszsqlwnokqpmz) → Table Editor → `guestbook_entries` / `guestbook_replies`
+- 데이터 확인·수동 삭제: [Supabase 대시보드](https://supabase.com/dashboard/project/sxrorbvuhdbavfbaibuj) → Table Editor → `guestbook_entries` / `guestbook_replies`
 - 전체 초기화(모든 글 삭제): SQL Editor에서 `delete from guestbook_entries;` 실행 (답글도 함께 삭제됨)
 
 ## 파일 구성
