@@ -22,7 +22,7 @@ python3 -m http.server 8931 -d .   # http://localhost:8931
 index.html ──POST /rest/v1/rpc/guestbook_*──▶ Supabase (guestbook 전용 프로젝트)
 ```
 
-- **Supabase 프로젝트**: `guestbook` (`sxrorbvuhdbavfbaibuj`, 서울) — 방명록 전용. 테이블 `guestbook_entries`·`guestbook_replies`, RPC 함수 7개 (`guestbook_list`, `guestbook_add/update/delete_entry`, `guestbook_add/update/delete_reply`). 2026-08-08에 구 `todo-app` 프로젝트(`jcspkkaszsqlwnokqpmz`)에서 분리했고, todo-app은 무료 플랜 2개 제한 때문에 **일시중지(paused)** 상태다 — 되살리려면 다른 프로젝트를 정리해야 한다. 구 프로젝트의 guestbook 테이블은 분리 시점 데이터로 남아 있고(`backup-2026-08-08.json`과 동일), 새 글은 새 프로젝트에만 쌓인다.
+- **Supabase 프로젝트**: `guestbook` (`sxrorbvuhdbavfbaibuj`, 서울) — 방명록 전용. 테이블 `guestbook_entries`·`guestbook_replies`, RPC 함수 7개 (`guestbook_list`, `guestbook_add/update/delete_entry`, `guestbook_add/update/delete_reply`). 2026-08-08에 구 `todo-app` 프로젝트(`jcspkkaszsqlwnokqpmz`)에서 분리했고, todo-app은 무료 플랜 2개 제한 때문에 **일시중지(paused)** 상태다 — 되살리려면 다른 프로젝트를 정리해야 한다. 구 프로젝트의 guestbook 테이블은 분리 시점 데이터로 남아 있고(`backup-2026-08-08.json`과 동일), 새 글은 새 프로젝트에만 쌓인다. 구 테이블 정리는 "일시중지 상태로 그대로 둔다"로 결정됨(2026-08-08) — 복구가 2개 제한에 막히므로 삭제 시도하지 말 것.
 - **보안 모델 (변경 시 반드시 유지)**: 두 테이블은 RLS on + 정책 없음 + anon/authenticated revoke로 직접 접근이 전면 차단되어 있고, 모든 접근은 SECURITY DEFINER RPC 함수를 통해서만 이루어진다. 비밀번호는 pgcrypto `crypt()`/`gen_salt('bf')`로 해시 저장·검증하며, 함수 안에서만 다룬다. `guestbook_list`는 `password_hash`를 응답에 포함하지 않는다. 새 기능을 추가할 때도 테이블에 직접 정책을 열지 말고 같은 RPC 패턴을 따를 것. Supabase 보안 어드바이저의 "anon can execute SECURITY DEFINER function" 경고는 의도된 설계다(로그인 없는 공개 방명록).
 - **응답 규약**: 쓰기 함수는 모두 HTTP 200에 `{ok: true}` 또는 `{ok: false, error: "한국어 안내문"}`을 반환한다. 에러 문구는 사용자에게 그대로 노출되므로 해요체 한국어로 쓴다.
 - **DB 변경 방법**: Supabase MCP의 `apply_migration` 사용 (기존 마이그레이션명: `create_guestbook`). 함수를 수정하면 `docs/API.md`의 파라미터·에러 메시지 표도 함께 갱신할 것.
