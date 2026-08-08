@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>방명록</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<style>
+  :root {
+    --bg: #fafafa;
+    --card: #ffffff;
+    --line: #e8e8e8;
+    --text: #222222;
+    --muted: #999999;
+    --accent: #222222;
+    --danger: #d64545;
+    --radius: 14px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 56px 20px 96px; }
+
+  header { text-align: center; margin-bottom: 40px; }
+  header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+  header p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+
+  /* 작성 폼 */
+  form.write { display: flex; flex-direction: column; gap: 10px; margin-bottom: 36px; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  input, textarea {
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--card);
+    outline: none;
+    transition: border-color .15s;
+  }
+  input:focus, textarea:focus { border-color: #bbb; }
+  textarea { resize: vertical; min-height: 88px; }
+  button {
+    font: inherit;
+    cursor: pointer;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    transition: opacity .15s;
+  }
+  button:hover { opacity: .85; }
+  button:disabled { opacity: .4; cursor: default; }
+  button.ghost {
+    background: transparent;
+    color: var(--muted);
+    font-weight: 500;
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+  button.ghost:hover { color: var(--text); opacity: 1; }
+  button.ghost.danger:hover { color: var(--danger); }
+  button.small { padding: 7px 12px; font-size: 13px; }
+
+  /* 목록 */
+  #list { display: flex; flex-direction: column; gap: 14px; }
+  .entry-head { display: flex; align-items: baseline; gap: 8px; }
+  .entry-head .name { font-weight: 700; font-size: 15px; }
+  .entry-head .date { color: var(--muted); font-size: 12px; }
+  .entry-head .actions { margin-left: auto; display: flex; gap: 2px; flex-shrink: 0; }
+  .content { margin-top: 8px; font-size: 15px; white-space: pre-wrap; word-break: break-word; }
+
+  /* 답글 */
+  .replies { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .reply {
+    border-top: 1px solid var(--line);
+    padding: 12px 0 0 14px;
+  }
+  .reply .entry-head .name { font-size: 14px; font-weight: 600; }
+  .reply .content { font-size: 14px; margin-top: 4px; }
+  .reply-toggle { margin-top: 12px; }
+
+  /* 인라인 폼 (답글 작성 / 수정 / 삭제 확인) */
+  .inline-form {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .inline-form .btns { display: flex; gap: 8px; justify-content: flex-end; }
+  .inline-form .hint { font-size: 13px; color: var(--muted); }
+  .error-msg { color: var(--danger); font-size: 13px; }
+
+  .empty { text-align: center; color: var(--muted); padding: 48px 0; font-size: 14px; }
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    transform: translateX(-50%) translateY(8px);
+    background: #222;
+    color: #fff;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 99px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>방명록</h1>
+    <p>이름이나 별명으로 자유롭게 한마디 남겨 주세요</p>
+  </header>
+
+  <form class="write card" id="writeForm">
+    <div class="row">
+      <input id="wName" placeholder="이름 또는 별명" maxlength="20" required />
+      <input id="wPw" type="password" placeholder="비밀번호 (4자 이상)" minlength="4" maxlength="30" required autocomplete="new-password" />
+    </div>
+    <textarea id="wContent" placeholder="내용을 입력해 주세요" maxlength="1000" required></textarea>
+    <div class="row" style="justify-content:flex-end">
+      <button type="submit" style="flex:0 0 auto">남기기</button>
+    </div>
+  </form>
+
+  <div id="list"><div class="empty">불러오는 중…</div></div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://jcspkkaszsqlwnokqpmz.supabase.co";
+const SUPABASE_KEY = "sb_publishable_4mUadSjAbg1N41XjfH1ZjA_Rdcru2gq";
+
+async function rpc(fn, params = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+    },
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) throw new Error(`요청 실패 (${res.status})`);
+  return res.json();
+}
+
+const $list = document.getElementById("list");
+const esc = (s) => s.replace(/[&<>"']/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  if (diff < 60) return "방금 전";
+  if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`;
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+async function load() {
+  try {
+    const entries = await rpc("guestbook_list");
+    render(entries);
+  } catch (e) {
+    $list.innerHTML = `<div class="empty">불러오지 못했어요. 새로고침해 주세요.</div>`;
+  }
+}
+
+function render(entries) {
+  if (!entries.length) {
+    $list.innerHTML = `<div class="empty">아직 방명록이 없어요. 첫 글을 남겨 보세요!</div>`;
+    return;
+  }
+  $list.innerHTML = entries.map(entryHTML).join("");
+}
+
+function headHTML(item, kind) {
+  const edited = item.updated_at ? ` <span class="date">(수정됨)</span>` : "";
+  return `<div class="entry-head">
+    <span class="name">${esc(item.name)}</span>
+    <span class="date">${fmtDate(item.created_at)}</span>${edited}
+    <span class="actions">
+      <button class="ghost" data-act="edit" data-kind="${kind}" data-id="${item.id}">수정</button>
+      <button class="ghost danger" data-act="delete" data-kind="${kind}" data-id="${item.id}">삭제</button>
+    </span>
+  </div>`;
+}
+
+function entryHTML(en) {
+  const replies = en.replies.map(r => `
+    <div class="reply" data-box="reply-${r.id}">
+      ${headHTML(r, "reply")}
+      <div class="content" data-content>${esc(r.content)}</div>
+      <div data-slot></div>
+    </div>`).join("");
+  return `
+  <div class="card" data-box="entry-${en.id}">
+    ${headHTML(en, "entry")}
+    <div class="content" data-content>${esc(en.content)}</div>
+    <div data-slot></div>
+    <div class="replies" ${en.replies.length ? "" : "hidden"}>${replies}</div>
+    <div class="reply-toggle">
+      <button class="ghost" data-act="reply" data-id="${en.id}">답글 달기</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- 인라인 폼 ---------- */
+function closeInlineForms() {
+  document.querySelectorAll(".inline-form").forEach(el => el.remove());
+}
+
+function openReplyForm(entryId, slot) {
+  closeInlineForms();
+  const form = document.createElement("form");
+  form.className = "inline-form";
+  form.innerHTML = `
+    <div class="row">
+      <input name="name" placeholder="이름 또는 별명" maxlength="20" required />
+      <input name="pw" type="password" placeholder="비밀번호 (4자 이상)" minlength="4" maxlength="30" required autocomplete="new-password" />
+    </div>
+    <textarea name="content" placeholder="답글을 입력해 주세요" maxlength="500" required style="min-height:64px"></textarea>
+    <div class="error-msg" hidden></div>
+    <div class="btns">
+      <button type="button" class="ghost" data-cancel>취소</button>
+      <button type="submit" class="small">답글 남기기</button>
+    </div>`;
+  slot.appendChild(form);
+  form.querySelector("[name=name]").focus();
+  form.querySelector("[data-cancel]").onclick = () => form.remove();
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    submitInline(form, "guestbook_add_reply", {
+      p_entry_id: entryId,
+      p_name: form.name.value.trim(),
+      p_content: form.content.value.trim(),
+      p_password: form.pw.value,
+    }, "답글을 남겼어요.");
+  };
+}
+
+function openEditForm(kind, id, slot, box) {
+  closeInlineForms();
+  const current = box.querySelector("[data-content]").textContent;
+  const isEntry = kind === "entry";
+  const form = document.createElement("form");
+  form.className = "inline-form";
+  form.innerHTML = `
+    <textarea name="content" maxlength="${isEntry ? 1000 : 500}" required style="min-height:72px"></textarea>
+    <input name="pw" type="password" placeholder="작성할 때 입력한 비밀번호" required autocomplete="off" />
+    <div class="error-msg" hidden></div>
+    <div class="btns">
+      <button type="button" class="ghost" data-cancel>취소</button>
+      <button type="submit" class="small">수정하기</button>
+    </div>`;
+  form.content.value = current;
+  slot.appendChild(form);
+  form.pw.focus();
+  form.querySelector("[data-cancel]").onclick = () => form.remove();
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    submitInline(form, isEntry ? "guestbook_update_entry" : "guestbook_update_reply", {
+      p_id: id,
+      p_password: form.pw.value,
+      p_content: form.content.value.trim(),
+    }, "수정했어요.");
+  };
+}
+
+function openDeleteForm(kind, id, slot) {
+  closeInlineForms();
+  const isEntry = kind === "entry";
+  const form = document.createElement("form");
+  form.className = "inline-form";
+  form.innerHTML = `
+    <div class="hint">${isEntry ? "글을 삭제하면 달린 답글도 함께 삭제돼요." : "답글을 삭제할까요?"} 비밀번호를 입력해 주세요.</div>
+    <input name="pw" type="password" placeholder="작성할 때 입력한 비밀번호" required autocomplete="off" />
+    <div class="error-msg" hidden></div>
+    <div class="btns">
+      <button type="button" class="ghost" data-cancel>취소</button>
+      <button type="submit" class="small" style="background:var(--danger)">삭제하기</button>
+    </div>`;
+  slot.appendChild(form);
+  form.pw.focus();
+  form.querySelector("[data-cancel]").onclick = () => form.remove();
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    submitInline(form, isEntry ? "guestbook_delete_entry" : "guestbook_delete_reply", {
+      p_id: id,
+      p_password: form.pw.value,
+    }, "삭제했어요.");
+  };
+}
+
+async function submitInline(form, fn, params, successMsg) {
+  const btn = form.querySelector("[type=submit]");
+  const errEl = form.querySelector(".error-msg");
+  btn.disabled = true;
+  errEl.hidden = true;
+  try {
+    const result = await rpc(fn, params);
+    if (result.ok) {
+      toast(successMsg);
+      await load();
+    } else {
+      errEl.textContent = result.error;
+      errEl.hidden = false;
+      btn.disabled = false;
+    }
+  } catch (e) {
+    errEl.textContent = "요청에 실패했어요. 잠시 후 다시 시도해 주세요.";
+    errEl.hidden = false;
+    btn.disabled = false;
+  }
+}
+
+/* ---------- 이벤트 ---------- */
+document.getElementById("writeForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const btn = e.target.querySelector("[type=submit]");
+  btn.disabled = true;
+  try {
+    const result = await rpc("guestbook_add_entry", {
+      p_name: document.getElementById("wName").value.trim(),
+      p_content: document.getElementById("wContent").value.trim(),
+      p_password: document.getElementById("wPw").value,
+    });
+    if (result.ok) {
+      e.target.reset();
+      toast("방명록을 남겼어요!");
+      await load();
+    } else {
+      toast(result.error);
+    }
+  } catch {
+    toast("요청에 실패했어요. 잠시 후 다시 시도해 주세요.");
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+$list.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-act]");
+  if (!btn) return;
+  const { act, kind, id } = btn.dataset;
+  if (act === "reply") {
+    const box = document.querySelector(`[data-box="entry-${id}"]`);
+    openReplyForm(id, box.querySelector("[data-slot]"));
+  } else {
+    const box = document.querySelector(`[data-box="${kind}-${id}"]`);
+    const slot = box.querySelector("[data-slot]");
+    if (act === "edit") openEditForm(kind, id, slot, box);
+    if (act === "delete") openDeleteForm(kind, id, slot);
+  }
+});
+
+load();
+</script>
+</body>
+</html>
